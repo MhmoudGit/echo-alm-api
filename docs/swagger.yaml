@@ -4,7 +4,149 @@ info:
   description: alm-api server swagger docs
   title: alm-api
   version: "1.0"
-paths: {}
+paths:
+  /auth/change-password:
+    patch:
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - auth
+  /auth/forgot-password:
+    post:
+      parameters:
+      - description: registered email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - auth
+  /auth/refresh-token:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      tags:
+      - auth
+  /auth/reset-password/{ptoken}:
+    patch:
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      tags:
+      - auth
+  /auth/token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      parameters:
+      - in: formData
+        name: email
+        required: true
+        type: string
+      - in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      tags:
+      - auth
+  /auth/verify-email/{uid}:
+    patch:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful Response
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      tags:
+      - auth
 securityDefinitions:
   ApiKeyAuth:
     in: header
