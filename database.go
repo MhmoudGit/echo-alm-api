@@ -16,7 +16,7 @@ type Database interface {
 	disconnect()
 }
 
-func database(db Database, env ENV) {
+func databaseInit(db Database, env ENV) {
 	db.connect(env)
 }
 

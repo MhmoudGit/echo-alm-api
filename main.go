@@ -33,7 +33,7 @@ func main() {
 
 	// connecting postgresql database
 	db := &Postgre{}
-	database(db, env)
+	databaseInit(db, env)
 	db.migrate() // this is for postgresql data only
 
 	e := echo.New()
