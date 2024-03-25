@@ -6,7 +6,5 @@
 - graceful shutdown &#10003;
 - logger middleware &#10003;
 - recoverer middleware &#10003;
-- add swagger docs
-- routers
-- controllers
-- repos
+- add swagger docs &#10003;
+- add Auth
