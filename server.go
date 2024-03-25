@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GracefulShutdown(env ENV, e *echo.Echo, db *Storage) {
+func GracefulShutdown(env ENV, e *echo.Echo, db Database) {
 	// server configurations [ starting - graceful shutdown]
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -18,7 +18,7 @@ func GracefulShutdown(env ENV, e *echo.Echo, db *Storage) {
 	go func() {
 		err := e.Start(env.Address)
 		if err != nil && err != http.ErrServerClosed {
-			db.GormClose()
+			db.disconnect()
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
@@ -31,6 +31,6 @@ func GracefulShutdown(env ENV, e *echo.Echo, db *Storage) {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	db.GormClose()
+	db.disconnect()
 	<-ctx.Done()
 }

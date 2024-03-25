@@ -28,20 +28,6 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Successful Response",

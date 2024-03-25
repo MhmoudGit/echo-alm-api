@@ -7,15 +7,6 @@ info:
 paths:
   /auth/change-password:
     patch:
-      parameters:
-      - in: formData
-        name: email
-        required: true
-        type: string
-      - in: formData
-        name: password
-        required: true
-        type: string
       produces:
       - application/json
       responses:

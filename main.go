@@ -15,15 +15,15 @@ import (
 	_ "github.com/MhmoudGit/echo-alm-api/docs"
 )
 
-// @title alm-api
-// @version 1.0
-// @description alm-api server swagger docs
+//	@title			alm-api
+//	@version		1.0
+//	@description	alm-api server swagger docs
 
-// @host localhost:8000
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-// @BasePath /
+// @host						localhost:8000
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @BasePath					/
 func main() {
 	// Load the environment variables from the .env file
 	if err := godotenv.Load(); err != nil {
@@ -31,10 +31,10 @@ func main() {
 	}
 	env := SetEnv()
 
-	// connecting database
-	var db Storage
-	db.GormConnect(env)
-	db.GormAutoMigrateDb()
+	// connecting postgresql database
+	db := &Postgre{}
+	database(db, env)
+	db.migrate() // this is for postgresql data only
 
 	e := echo.New()
 
@@ -53,10 +53,10 @@ func main() {
 
 	// routes
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	auth.AuthRoutes(e, jwtconfig, db.PgDatabase)
+	auth.AuthRoutes(e, jwtconfig, db.gorm)
 
 	// start server with graceful shutdown
-	GracefulShutdown(env, e, &db)
+	GracefulShutdown(env, e, db)
 }
 
 // validations for incoming data from the client

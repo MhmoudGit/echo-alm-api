@@ -1,4 +1,4 @@
 .PHONY: run
 
 run:
-	@swag init && go run .
+	@swag fmt && swag init && go run .
