@@ -12,31 +12,30 @@ import (
 )
 
 type Database interface {
-	connect(env ENV)
+	connect(env Env)
 	disconnect()
 }
 
-func databaseInit(db Database, env ENV) {
+func databaseInit(db Database, env Env) {
 	db.connect(env)
 }
 
-type Postgre struct {
+type Postgres struct {
 	gorm *gorm.DB
 }
 
 // postgresql database connections
-func (pg *Postgre) connect(env ENV) {
+func (pg *Postgres) connect(env Env) {
 	var err error
 	// Open db connection
 	pg.gorm, err = gorm.Open(postgres.Open(env.Postgres), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
-	} else {
-		log.Println("Database connected successfully...")
 	}
+	log.Println("Database connected successfully...")
 }
 
-func (pg *Postgre) migrate() {
+func (pg *Postgres) migrate() {
 	// Define a slice of model structs that you want to migrate.
 	modelsToMigrate := []interface{}{
 		// Add more model structs here if needed.
@@ -51,7 +50,7 @@ func (pg *Postgre) migrate() {
 	// Check if the superadmin exists, and create if not
 }
 
-func (pg *Postgre) disconnect() {
+func (pg *Postgres) disconnect() {
 	// Close db
 	dbInstance, _ := pg.gorm.DB()
 	_ = dbInstance.Close()
@@ -64,7 +63,7 @@ type MongoDB struct {
 }
 
 // mongo database connections
-func (mdb *MongoDB) connect(env ENV) {
+func (mdb *MongoDB) connect(env Env) {
 	// Use the SetServerAPIOptions() method to set the version of the Stable API on the client
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(env.Mongo).SetServerAPIOptions(serverAPI)

@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GracefulShutdown(env ENV, e *echo.Echo, db Database) {
+func GracefulShutdown(env Env, e *echo.Echo, db Database) {
 	// server configurations [ starting - graceful shutdown]
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -71,9 +70,7 @@ func verifyEmailHandler(c echo.Context, db *gorm.DB) error {
 // @Success	200	{string}	string	"Successful Response"
 // @Router		/auth/change-password [patch]
 func changePasswordHandler(c echo.Context, db *gorm.DB) error {
-	user := c.Get("user").(*jwt.Token)
-	claims := user.Claims.(*JwtCustomClaims)
-	return c.JSON(200, claims)
+	return nil
 }
 
 // @Tags		auth

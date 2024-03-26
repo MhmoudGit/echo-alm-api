@@ -32,7 +32,7 @@ func main() {
 	env := SetEnv()
 
 	// connecting postgresql database
-	db := &Postgre{}
+	db := &Postgres{}
 	databaseInit(db, env)
 	db.migrate() // this is for postgresql data only
 
