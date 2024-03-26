@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"context"
@@ -16,33 +16,33 @@ type Database interface {
 	disconnect()
 }
 
-func databaseInit(db Database, env Env) {
+func DatabaseInit(db Database, env Env) {
 	db.connect(env)
 }
 
 type Postgres struct {
-	gorm *gorm.DB
+	Gorm *gorm.DB
 }
 
 // postgresql database connections
 func (pg *Postgres) connect(env Env) {
 	var err error
 	// Open db connection
-	pg.gorm, err = gorm.Open(postgres.Open(env.Postgres), &gorm.Config{})
+	pg.Gorm, err = gorm.Open(postgres.Open(env.Postgres), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}
 	log.Println("Database connected successfully...")
 }
 
-func (pg *Postgres) migrate() {
+func (pg *Postgres) Migrate() {
 	// Define a slice of model structs that you want to migrate.
 	modelsToMigrate := []interface{}{
 		// Add more model structs here if needed.
 		auth.User{},
 	}
 	// // AutoMigrate will create tables if they don't exist based on the model structs.
-	err := pg.gorm.AutoMigrate(modelsToMigrate...)
+	err := pg.Gorm.AutoMigrate(modelsToMigrate...)
 	if err != nil {
 		log.Fatalf("Error migrating database tables: %v", err)
 	}
@@ -52,7 +52,7 @@ func (pg *Postgres) migrate() {
 
 func (pg *Postgres) disconnect() {
 	// Close db
-	dbInstance, _ := pg.gorm.DB()
+	dbInstance, _ := pg.Gorm.DB()
 	_ = dbInstance.Close()
 	log.Println("Database is closed successfully...")
 }

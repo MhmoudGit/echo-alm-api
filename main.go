@@ -12,6 +12,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"github.com/MhmoudGit/echo-alm-api/auth"
+	"github.com/MhmoudGit/echo-alm-api/config"
 	_ "github.com/MhmoudGit/echo-alm-api/docs"
 )
 
@@ -29,12 +30,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("error loading .env file")
 	}
-	env := SetEnv()
+	env := config.SetEnv()
 
 	// connecting postgresql database
-	db := &Postgres{}
-	databaseInit(db, env)
-	db.migrate() // this is for postgresql data only
+	db := &config.Postgres{}
+	config.DatabaseInit(db, env)
+	db.Migrate() // this is for postgresql data only
 
 	e := echo.New()
 
@@ -48,15 +49,15 @@ func main() {
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
 			return new(auth.JwtCustomClaims)
 		},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(env.Secret),
 	}
 
 	// routes
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	auth.AuthRoutes(e, jwtconfig, db.gorm)
+	auth.AuthRoutes(e, jwtconfig, db.Gorm, env.Secret)
 
 	// start server with graceful shutdown
-	GracefulShutdown(env, e, db)
+	config.GracefulShutdown(env, e, db)
 }
 
 // validations for incoming data from the client

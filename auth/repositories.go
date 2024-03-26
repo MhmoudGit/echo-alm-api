@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -17,24 +18,25 @@ func getUserByEmail(db *gorm.DB, email string) (User, error) {
 }
 
 // verify User password
-func authinticateUser(db *gorm.DB, email, password string) (*User, error) {
+func authinticateUser(db *gorm.DB, email, password string) (User, error) {
 	user, err := getUserByEmail(db, email)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 	err = user.VerifyPassword(password)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 	// Passwords match
-	return &user, nil
+	return user, nil
 }
 
-func generateToken(userId, role string, duration time.Duration) (string, error) {
+func generateToken(userId, role string, isActive bool, duration time.Duration, secret string) (string, error) {
 	// Set custom claims
 	claims := &JwtCustomClaims{
 		userId,
 		role,
+		isActive,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 		},
@@ -44,10 +46,34 @@ func generateToken(userId, role string, duration time.Duration) (string, error) 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
 
 	return t, nil
+}
+
+func ParseToken(tokenString string, secret string) (*JwtCustomClaims, error) {
+	// Parse the token
+	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// Provide the key used to sign the token
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the token is valid
+	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
 }

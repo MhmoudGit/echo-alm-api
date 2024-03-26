@@ -8,8 +8,9 @@ import (
 )
 
 type JwtCustomClaims struct {
-	UserID string `json:"userId"`
-	Role   string `json:"role"`
+	UserID   string `json:"userId"`
+	Role     string `json:"role"`
+	IsActive bool   `json:"isActive"`
 	jwt.RegisteredClaims
 }
 
@@ -24,7 +25,7 @@ type User struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 	Email     string    `gorm:"not null;index;unique" json:"email" form:"email"`
 	Password  string    `gorm:"not null" json:"-" form:"password"`
-	Role      string    `gorm:"not null;default:Worker" json:"role" form:"role"`
+	Role      string    `gorm:"not null" json:"role" form:"role"`
 	IsActive  bool      `gorm:"not null;default:true" json:"isActive" form:"isActive"`
 }
 
@@ -39,7 +40,7 @@ func (u *User) VerifyActivity(isActive bool) bool {
 	return u.IsActive
 }
 
-// HashPassword securely hashes the provided password and sets it in the PasswordHash field.
+// HashPassword securely hashes the provided password and sets it in the Password field.
 func (u *User) HashPassword(password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

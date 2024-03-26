@@ -6,11 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func AuthRoutes(e *echo.Echo, config echojwt.Config, db *gorm.DB) {
+func AuthRoutes(e *echo.Echo, config echojwt.Config, db *gorm.DB, secret string) {
 	auth := e.Group("/auth")
 
-	auth.POST("/token", func(c echo.Context) error { return tokenHandler(c, db) })
-	auth.POST("/refresh-token", func(c echo.Context) error { return refreshTokenHandler(c, db) })
+	auth.POST("/token", func(c echo.Context) error { return tokenHandler(c, db, secret) })
+	auth.POST("/refresh-token", func(c echo.Context) error { return refreshTokenHandler(c, secret) })
 	auth.POST("/signup", func(c echo.Context) error { return signupHandler(c, db) })
 	auth.Use(echojwt.WithConfig(config))
 	auth.PATCH("/verify-email/:uid", func(c echo.Context) error { return verifyEmailHandler(c, db) })
