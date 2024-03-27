@@ -4,7 +4,16 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+)
+
+const (
+	SUPERADMIN = "SuperAdmin"
+	ADMIN      = "Admin"
+	USER       = "User"
+	// Regular expression for matching email addresses
+    EMAILREGEX = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 )
 
 type JwtCustomClaims struct {
@@ -14,13 +23,18 @@ type JwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+type EmailSender struct {
+	Email    string
+	Password string
+}
+
 type Login struct {
 	Email    string `json:"email" form:"email" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
 type User struct {
-	ID        string    `gorm:"not null;index;unique" json:"id"`
+	ID        string    `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 	Email     string    `gorm:"not null;index;unique" json:"email" form:"email"`
@@ -48,4 +62,18 @@ func (u *User) HashPassword(password string) error {
 	}
 	u.Password = string(hashedPassword)
 	return nil
+}
+
+type UserCreate struct {
+	Email    string `json:"email" form:"email" validate:"required"`
+	Password string `json:"password" form:"password" validate:"required"`
+}
+
+func (u *UserCreate) Serialize() *User {
+	return &User{
+		ID:       uuid.NewString(),
+		Email:    u.Email,
+		Password: u.Password,
+		Role:     USER,
+	}
 }

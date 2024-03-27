@@ -216,7 +216,7 @@ const docTemplate = `{
             }
         },
         "/auth/verify-email/{uid}": {
-            "patch": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []

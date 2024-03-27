@@ -54,7 +54,7 @@ func main() {
 
 	// routes
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	auth.AuthRoutes(e, jwtconfig, db.Gorm, env.Secret)
+	auth.AuthRoutes(e, jwtconfig, db.Gorm, env.Secret, env.Sender)
 
 	// start server with graceful shutdown
 	config.GracefulShutdown(env, e, db)

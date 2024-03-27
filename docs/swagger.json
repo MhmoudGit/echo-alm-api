@@ -209,7 +209,7 @@
             }
         },
         "/auth/verify-email/{uid}": {
-            "patch": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []

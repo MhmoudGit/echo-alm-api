@@ -2,6 +2,8 @@ package auth
 
 import (
 	"fmt"
+	"net/smtp"
+	"regexp"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -54,7 +56,7 @@ func generateToken(userId, role string, isActive bool, duration time.Duration, s
 	return t, nil
 }
 
-func ParseToken(tokenString string, secret string) (*JwtCustomClaims, error) {
+func parseToken(tokenString string, secret string) (*JwtCustomClaims, error) {
 	// Parse the token
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Validate the signing method
@@ -76,4 +78,30 @@ func ParseToken(tokenString string, secret string) (*JwtCustomClaims, error) {
 	}
 
 	return nil, fmt.Errorf("invalid token")
+}
+
+func SendEmail(sender EmailSender, to []string, msg []byte) error {
+	auth := smtp.PlainAuth("", sender.Email, sender.Password, "smtp.gmail.com")
+	// Here we do it all: connect to our server, set up a message and send it
+	err := smtp.SendMail("smtp.gmail.com:587", auth, sender.Email, to, msg)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func CreateUser(db *gorm.DB, user *User) error {
+	// Compile the regex pattern
+	regexPattern := regexp.MustCompile(EMAILREGEX)
+	ok := regexPattern.MatchString(user.Email)
+	if !ok {
+		return fmt.Errorf("invalid email")
+	}
+	user.HashPassword(user.Password)
+	// Create the User in the database
+	result := db.Create(user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

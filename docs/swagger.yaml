@@ -126,7 +126,7 @@ paths:
       tags:
       - auth
   /auth/verify-email/{uid}:
-    patch:
+    get:
       produces:
       - application/json
       responses:

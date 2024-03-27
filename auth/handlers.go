@@ -40,7 +40,7 @@ func tokenHandler(c echo.Context, db *gorm.DB, secret string) error {
 		}
 		refreshToken, err = generateToken(user.ID, user.Role, user.IsActive, time.Hour*24, secret)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "unable to generate token, check user activity")
+			return echo.NewHTTPError(http.StatusBadRequest, "unable to generate refresh token")
 		}
 	}
 
@@ -67,7 +67,7 @@ func refreshTokenHandler(c echo.Context, secret string) error {
 	if err != nil {
 		return echo.ErrUnauthorized
 	}
-	claims, err := ParseToken(cookie.Value, secret)
+	claims, err := parseToken(cookie.Value, secret)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -86,18 +86,46 @@ func refreshTokenHandler(c echo.Context, secret string) error {
 
 // @Tags		auth
 // @Produce	json
-// @Param		login	formData	auth.Login	true	"new user data"
-// @Success	200		{string}	auth.Login	"Successful Response"
+// @Param		user	formData	auth.UserCreate	true	"new user data"
+// @Success	200		{string}	{string}		"Successful Response"
 // @Router		/auth/signup [post]
-func signupHandler(c echo.Context, db *gorm.DB) error {
-	return nil
+func signupHandler(c echo.Context, db *gorm.DB, sender EmailSender) error {
+	var userData UserCreate
+	err := c.Bind(&userData)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	if err = c.Validate(&userData); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	newUser := userData.Serialize()
+
+	// check if email exists in db
+	_, err = getUserByEmail(db, newUser.Email)
+	if err == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "change your email")
+	}
+
+	// create user in db
+	err = CreateUser(db, newUser)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	SendEmail(sender, []string{newUser.Email}, []byte("Hello world"))
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"message": "user registered successfully",
+	})
 }
 
 // @Tags		auth
 // @security	ApiKeyAuth
 // @Produce	json
 // @Success	200	{string}	string	"Successful Response"
-// @Router		/auth/verify-email/{uid} [patch]
+// @Router		/auth/verify-email/{uid} [get]
 func verifyEmailHandler(c echo.Context, db *gorm.DB) error {
 	return nil
 }
