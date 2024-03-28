@@ -23,6 +23,7 @@ type JwtCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
+// email verifications sender email and password
 type EmailSender struct {
 	Email    string
 	Password string
@@ -33,6 +34,7 @@ type Login struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
+// user model in database
 type User struct {
 	ID        string    `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
@@ -69,6 +71,7 @@ type UserCreate struct {
 	Password string `json:"password" form:"password" validate:"required"`
 }
 
+// serializes user creations from UserCreate form to insert to database
 func (u *UserCreate) Serialize() *User {
 	return &User{
 		ID:       uuid.NewString(),

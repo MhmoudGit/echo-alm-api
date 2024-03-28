@@ -97,7 +97,10 @@ func CreateUser(db *gorm.DB, user *User) error {
 	if !ok {
 		return fmt.Errorf("invalid email")
 	}
-	user.HashPassword(user.Password)
+	err := user.HashPassword(user.Password)
+	if err != nil {
+		return err
+	}
 	// Create the User in the database
 	result := db.Create(user)
 	if result.Error != nil {

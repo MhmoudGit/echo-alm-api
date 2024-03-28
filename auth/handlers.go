@@ -114,7 +114,10 @@ func signupHandler(c echo.Context, db *gorm.DB, sender EmailSender) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	SendEmail(sender, []string{newUser.Email}, []byte("Hello world"))
+	err = SendEmail(sender, []string{newUser.Email}, []byte("Hello world"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"message": "user registered successfully",
